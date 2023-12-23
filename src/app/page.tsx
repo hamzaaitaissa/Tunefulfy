@@ -1,107 +1,134 @@
 "use client";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import generateAlbum from "../pages/api/generateAlbum";
 import animationData from "../../public/loading.json";
 import Lottie from "lottie-react";
+import type { ApiResponse, CurrentAlbum } from "../components/types/type";
+import AlbumDetail from "@/components/AlbumDetail";
+import HomePage from "@/components/HomePage";
+import AlbumDetailMobile from "@/components/AlbumDetailMobile";
 
 export default function Home() {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [recievedAlbum, setRecievedAlbum] = useState(false);
-  const [currentAlbum, setCurrentAlbum] = useState<CurrentAlbum | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const [currentAlbum, setCurrentAlbum] = useState<CurrentAlbum | undefined>(
+    undefined
+  );
 
-  interface ApiResponse<T> {
-    data: T;
-  }
-  interface AlbumImage {
-    height: number;
-    url: string;
-    width: number;
+  //to clear localstorage at 6am
+  function clearLocalStorageAt6AM() {
+    const lastGeneratedString = localStorage.getItem("lastGenerated");
+
+    if (lastGeneratedString) {
+      const lastGenerated = new Date(lastGeneratedString);
+      const today = new Date();
+      const today6AM = new Date(today);
+      today6AM.setHours(6, 0, 0, 0);
+
+      if (today.getDay() > lastGenerated.getDay()) {
+        if (today.getHours() >= 6) {
+          localStorage.removeItem("lastGenerated");
+          localStorage.removeItem("cachedAlbum");
+        }
+      }
+    }
   }
 
-  interface CurrentAlbum {
-    artist: string;
-    artistOrigin: string;
-    images: AlbumImage[];
-    genres: string[];
-    subGenres: string[];
-    name: string;
-    slug: string;
-    releaseDate: string;
-    globalReviewsUrl: string;
-    wikipediaUrl: string;
-    spotifyId: string;
-    appleMusicId: string;
-    amazonMusicId: string;
-    youtubeMusicId: string;
+  //to get cached ALBUM
+  const getCachedAlbum = (): CurrentAlbum | null => {
+    const cachedData = localStorage.getItem("cachedAlbum");
+    if (cachedData) {
+      setRecievedAlbum(true);
+      return JSON.parse(cachedData);
+    }
+    return null;
+  };
+
+  function canGenerateAlbum() {
+    const lastGenerated = localStorage.getItem("lastGenerated");
+    if (!lastGenerated) {
+      return true;
+    }
+    const lastGeneratedDate = new Date(lastGenerated);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today > lastGeneratedDate && today.getHours() > 3;
   }
 
   const generate = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get<CurrentAlbum>("/api/generateAlbum");
-      if (response) {
-        setCurrentAlbum(response.data);
-        setTimeout(() => {
-          setRecievedAlbum(true);
-          setLoading(false);
-        }, 2000);
+    if (canGenerateAlbum()) {
+      try {
+        setLoading(true);
+        const response: ApiResponse = await axios.get("/api/generateAlbum");
+
+        if (response) {
+          setCurrentAlbum(response.data);
+          const today = new Date().toISOString();
+          localStorage.setItem("lastGenerated", today);
+          localStorage.setItem("cachedAlbum", JSON.stringify(response.data));
+          setTimeout(() => {
+            setRecievedAlbum(true);
+            setLoading(false);
+          }, 2000);
+        }
+        console.log(response.data);
+      } catch (error) {
+        setLoading(false);
+        console.log(error);
       }
-      console.log(response.data);
-    } catch (error) {
-      setLoading(false);
-      console.log(error);
+    } else {
+      setRecievedAlbum(true);
+      console.log("album recieved");
     }
   };
 
+  /////////////////////////////////////////////////////////////////////////////////////////
+
+  useEffect(() => {
+    //resizing
+    function handleResize() {
+      setIsMobile(window.innerWidth <= 768); // Change the width condition as needed
+    }
+
+    window.addEventListener("resize", handleResize);
+    handleResize(); // Check on initial load
+
+    clearLocalStorageAt6AM();
+    // If we have a cached album and it's not recieved from the api yet then use that one instead of fetching again
+    const cachedAlbum: CurrentAlbum | null = getCachedAlbum();
+    if (cachedAlbum) {
+      console.log(cachedAlbum);
+      setCurrentAlbum(cachedAlbum as CurrentAlbum);
+    }
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   return (
-    <main className="flex min-h-screen flex-col items-center space-y-9 p-24">
+    <main
+      className={` mx-auto flex min-h-[100vh] ${
+        recievedAlbum ? "flex-row justify-center items-center" : "flex-col"
+      }  max-w-5xl gap-4 px-4 py-6 xl:px-0`}
+    >
       {loading ? (
         <>
-          <Lottie animationData={animationData} />{" "}
+          <Lottie animationData={animationData} style={{ height: 600 }} />
         </>
       ) : !recievedAlbum ? (
         <>
-          <span className="tracking-wider font-bold text-4xl text-transparent bg-clip-text bg-gradient-to-r from-[#00bf8f] to-[#044d3c]">
-            Album Every Day
-          </span>
-          <Button onClick={generate}>Generate</Button>
+          <HomePage onClick={generate} isMobile={isMobile} />
         </>
+      ) : !isMobile ? (
+        <AlbumDetail currentAlbum={currentAlbum} />
       ) : (
-        <section className="grid grid-cols-3 grid-rows-4 w-full h-[50vh] gap-2  ">
-          <div className=" relative col-span-1 row-span-4 flex items-center justify-center">
-            {currentAlbum.images &&
-              currentAlbum.images.length > 0 &&
-              currentAlbum.images[0].url && (
-                <Image
-                  src={currentAlbum.images[0].url}
-                  alt="Your Image"
-                  fill
-          sizes="(min-width: 808px) 50vw, 100vw"
-          className="rounded-lg object-cover object-top"
-                />
-              )}
-          </div>
-          <div className="col-span-2 row-span-1 flex justify-start px-10 items-center">
-                <p className="center text-8xl font-bold text-gray-700 dark:text-white">
-                  {currentAlbum.name}
-                </p>
-          </div>
-          <div className="col-span-2 row-span-2 flex justify-start px-10 items-center">
-                <p className="center text-2xl font-bold text-gray-700 dark:text-white">
-                  Artist: {currentAlbum.artist}
-                </p>
-          </div>
-          <div className="col-span-2 row-span-3 flex justify-start px-10 items-center">
-            {currentAlbum?.genres.map(genre=>(
-              <div key={genre} className=" mx-3 w-auto h-[20px] rounded-[30px] bg-lime-600 text-white text-base px-3 py-3 flex justify-center items-center">{genre}</div>
-
-            ))}
-                
-          </div>
-        </section>
+        <AlbumDetailMobile currentAlbum={currentAlbum} />
       )}
     </main>
   );

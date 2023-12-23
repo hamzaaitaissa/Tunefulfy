@@ -1,0 +1,215 @@
+"use client";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import generateAlbum from "../pages/api/generateAlbum";
+import animationData from "../../public/loading.json";
+import Lottie from "lottie-react";
+import { GiGuitar } from "react-icons/gi";
+import type { ApiResponse, CurrentAlbum, ImageProps } from '../components/types/type';
+
+export default function Home() {
+  const [loading, setLoading] = useState(true);
+  const [recievedAlbum, setRecievedAlbum] = useState(false);
+  const [currentAlbum, setCurrentAlbum] = useState<CurrentAlbum | undefined>(
+    undefined
+  );
+
+  //to clear localstorage at 6am
+  function clearLocalStorageAt6AM() {
+    let now = new Date();
+    let timeToClear = new Date();
+    timeToClear.setHours(6, 0, 0, 0);
+    let timeout;
+    if (now > timeToClear) {
+      // If current time is past 6AM, set timeout for the next day
+      timeToClear.setDate(timeToClear.getDate() + 1);
+    }
+
+    const timeUntilClear = timeToClear.getTime() - now.getTime();
+    timeout = setTimeout(() => {
+      localStorage.removeItem("lastGenerated");
+      localStorage.removeItem("cachedAlbum");
+      clearLocalStorageAt6AM(); // Call the function again for the next day
+    }, timeUntilClear);
+  }
+
+  //to get cached ALBUM
+  const getCachedAlbum = (): CurrentAlbum | null => {
+    const cachedData = localStorage.getItem("cachedAlbum");
+    if (cachedData) {
+      setRecievedAlbum(true);
+      return JSON.parse(cachedData);
+    }
+    return null;
+  };
+
+  // type ImageProps = {
+  //   height: number;
+  //   url: string;
+  //   width: number;
+  // };
+
+  // type CurrentAlbum = {
+  //   artist: string;
+  //   artistOrigin: string;
+  //   images: ImageProps[]; 
+  //   genres: string[]; 
+  //   subGenres: string[]; 
+  //   name: string;
+  //   slug: string;
+  //   releaseDate: string;
+  //   globalReviewsUrl: string;
+  //   wikipediaUrl: string;
+  //   spotifyId: string;
+  //   appleMusicId: string;
+  //   tidalId: number;
+  //   amazonMusicId: string;
+  //   youtubeMusicId: string;
+  // };
+
+  // type ApiResponse = {
+  //   data: CurrentAlbum;
+  // };
+  // const fetchApiAlbum = async()=>{
+  //   try {
+  //     setLoading(true);
+  //     const response: ApiResponse = await axios.get("/api/generateAlbum");
+
+  //     if (response) {
+  //       setCurrentAlbum(response.data);
+  //       const today = new Date().toISOString();
+  //       localStorage.setItem("lastGenerated", today);
+  //       localStorage.setItem("cachedAlbum", JSON.stringify(response.data));
+  //       setRecievedAlbum(true);
+
+  //     }
+  //     console.log(response.data);
+  //   } catch (error) {
+  //     setLoading(false);
+  //     console.log(error);
+  //   }
+  // }
+
+  useEffect(() => {
+    clearLocalStorageAt6AM();
+    // If we have a cached album and it's not recieved from the api yet then use that one instead of fetching again
+    const cachedAlbum: CurrentAlbum | null = getCachedAlbum();
+    if (cachedAlbum) {
+      console.log(cachedAlbum);
+      setCurrentAlbum(cachedAlbum as CurrentAlbum);
+    }
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  function canGenerateAlbum() {
+    const lastGenerated = localStorage.getItem("lastGenerated");
+    if (!lastGenerated) {
+      return true;
+    }
+    const lastGeneratedDate = new Date(lastGenerated);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today > lastGeneratedDate && today.getHours() > 3;
+  }
+
+  const generate = async () => {
+    if (canGenerateAlbum()) {
+      try {
+        setLoading(true);
+        const response: ApiResponse = await axios.get("/api/generateAlbum");
+
+        if (response) {
+          setCurrentAlbum(response.data);
+          const today = new Date().toISOString();
+          localStorage.setItem("lastGenerated", today);
+          localStorage.setItem("cachedAlbum", JSON.stringify(response.data));
+          setTimeout(() => {
+            setRecievedAlbum(true);
+            setLoading(false);
+          }, 2000);
+        }
+        console.log(response.data);
+      } catch (error) {
+        setLoading(false);
+        console.log(error);
+      }
+    } else {
+      setRecievedAlbum(true);
+      console.log("album recieved");
+    }
+  };
+
+  return (
+    <main className=" mx-auto flex min-h-[100vh] max-w-5xl flex-col gap-4 px-4 py-6 xl:px-0">
+      {loading ? (
+        <>
+          <Lottie animationData={animationData} style={{ height: 700 }} />{" "}
+        </>
+      ) : !recievedAlbum ? (
+        <>
+          <span className="center tracking-wider font-bold text-4xl text-transparent bg-clip-text bg-gradient-to-t from-[#00bf8f] to-[#044d3c]">
+            Album Every Day
+          </span>
+          <Button onClick={generate}>Generate</Button>
+        </>
+      ) : (
+        <section className="flex flex-row w-full h-[35rem] justify-center items-center mx-auto">
+          <div className="w-[40%] h-full relative">
+            <Image
+              src={currentAlbum!.images[0].url}
+              alt=""
+              layout="fill"
+              objectFit="cover"
+              className="w-full h-full rounded-lg"
+            />
+          </div>
+          <div className="w-[60%] h-full flex flex-col space-y-3 justify-around items-center pl-5">
+            <div className="w-full ">
+              <h2 className="text text-5xl font-bold">{currentAlbum!.name}</h2>
+            </div>
+            <div className="w-full flex flex-row justify-start items-center space-x-4">
+              <GiGuitar className="w-[30px] h-[30px]" />
+              <h2 className="text- text-3xl">{currentAlbum!.artist}</h2>
+              <GiGuitar className="w-[30px] h-[30px]" />
+            </div>
+            <div className="w-full flex flex-row justify-start items-center space-x-3 ">
+              {currentAlbum!.genres.map((genre: string) => {
+                return (
+                  <div
+                    key={genre}
+                    className="text-center text-sm  inline-block w-fit h-[20px] rounded-3xl px-3 py-1 bg-amber-600 text-[#f2f2f2]"
+                  >
+                    {genre}
+                  </div>
+                );
+              })}
+              {currentAlbum!.subGenres.map((subgenre:string) => {
+                return (
+                  <div
+                    key={subgenre}
+                    className="text-center text-sm  flex items-center w-fit h-[20px] rounded-3xl px-3 py-1 bg-teal-700 text-[#f2f2f2]"
+                  >
+                    {subgenre}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="w-full ">
+              <h2>{currentAlbum!.name}</h2>
+            </div>
+            <div className="w-full ">
+              <h2>{currentAlbum!.name}</h2>
+            </div>
+          </div>
+        </section>
+      )}
+    </main>
+  );
+}
