@@ -39,9 +39,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <main className={roboto.className}>{children}<Analytics /></main>
+          <main className={roboto.className}>{children}</main>
           
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
