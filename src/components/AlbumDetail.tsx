@@ -60,19 +60,19 @@ const AlbumDetail = ({ currentAlbum }: AlbumProps) => {
           <h2 className="text- text-3xl">{currentAlbum!.artist}</h2>
 
         </motion.div>
-        <div className="w-full flex flex-col  gap-y-3 justify-start ">
+        <div className="max-w-full flex flex-col justify-start ">
           <motion.div
             initial="hidden"
             animate="visible"
             variants={variants}
             transition={{ ...transition, delay: 1.2 }}
-            className="flex justify-start items-start space-x-2 w-full"
+            className="flex justify-start items-start gap-2 w-full flex-wrap"
           >
             {currentAlbum!.genres.map((genre) => {
               return (
                 <div
                   key={genre}
-                  className="flex flex-col items-center justify-center text-center text-sm w-fit h-6 rounded-3xl px-4 py-2 bg-[#1db954] text-[#f2f2f2] "
+                  className="flex flex-col items-center justify-center text-center text-sm w-fit h-8 rounded-3xl px-4 py-2 bg-[#1db954] text-[#f2f2f2] "
                 >
                   <p className="text-center">{genre.toString().toUpperCase()}</p>
                 </div>

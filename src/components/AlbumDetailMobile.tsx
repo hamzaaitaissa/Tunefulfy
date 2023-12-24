@@ -64,12 +64,12 @@ const AlbumDetailMobile = ({ currentAlbum }: AlbumProps) => {
             <div>
               <p>{currentAlbum?.releaseDate}</p>
             </div>
-            <div className="flex w-full items-center justify-center gap-x-3 flex-wrap">
+            <div className="flex w-full items-center justify-center gap-2 flex-wrap">
               {currentAlbum!.genres.map((genre) => {
                 return (
                   <div
                     key={genre}
-                    className="flex flex-col items-center justify-center text-center text-sm w-fit h-6 rounded-3xl px-4 py-2 bg-[#535353] text-[#f2f2f2] "
+                    className="flex flex-col items-center justify-center text-center text-sm w-fit h-8 rounded-3xl px-4 py-2 bg-[#535353] text-[#f2f2f2] "
                   >
                     <p className="text-center">
                       {genre.toString().toUpperCase()}
