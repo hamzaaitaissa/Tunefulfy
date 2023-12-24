@@ -2,15 +2,14 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Roboto } from 'next/font/google'
-import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Roboto } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
- 
 const roboto = Roboto({
-  weight: '700',
-  subsets: ['latin'],
-})
+  weight: "700",
+  subsets: ["latin"],
+});
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -23,16 +22,16 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const pageDescription = "Generate a new album every day!"
-  const pageTitle = "Tunefulfy"
+  const pageDescription = "Generate a new album every day!";
+  const pageTitle = "Tunefulfy";
 
   return (
     <html lang="en">
       <head>
-      <meta name="description" content={pageDescription} />
-      <meta property="og:title" content={pageTitle} />
-      <meta property="og:description" content={pageDescription} />
-      <meta property="og:type" content="website" />
+        <meta name="description" content={pageDescription} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:type" content="website" />
       </head>
       <body className={inter.className}>
         <ThemeProvider
@@ -41,11 +40,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <main className={roboto.className}>{children}</main>
-          
+          <main className={roboto.className}>
+            {children} 
+            <Analytics />
+            <SpeedInsights />
+          </main>
         </ThemeProvider>
-        <Analytics />
-        <SpeedInsights/>
       </body>
     </html>
   );
