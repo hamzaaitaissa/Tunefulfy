@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Roboto } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/react';
  
 const roboto = Roboto({
   weight: '700',
@@ -38,7 +39,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <main className={roboto.className}>{children}</main>
+          <main className={roboto.className}>{children}<Analytics /></main>
           
         </ThemeProvider>
       </body>
