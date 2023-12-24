@@ -60,7 +60,7 @@ const AlbumDetail = ({ currentAlbum }: AlbumProps) => {
           <h2 className="text- text-3xl">{currentAlbum!.artist}</h2>
 
         </motion.div>
-        <div className="max-w-full flex flex-col justify-start ">
+        <div className="w-full flex flex-col justify-start ">
           <motion.div
             initial="hidden"
             animate="visible"
