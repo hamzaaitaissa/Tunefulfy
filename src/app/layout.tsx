@@ -4,6 +4,8 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Roboto } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from "@vercel/speed-insights/next"
+
  
 const roboto = Roboto({
   weight: '700',
@@ -43,6 +45,7 @@ export default function RootLayout({
           
         </ThemeProvider>
         <Analytics />
+        <SpeedInsights/>
       </body>
     </html>
   );
