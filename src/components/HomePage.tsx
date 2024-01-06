@@ -14,7 +14,7 @@ const HomePage: React.FC<HomePageProps> = ({ onClick, isMobile }) => {
       <div className="lg:w-[50%] md:w-[50%] w-full flex flex-col lg:gap-y-6 md:gap-y-5 gap-y-7 items-center ">
         <div className={`${isMobile ? "text-center" : "text-left"}`}>
         <span className="text-center font-bold lg:text-7xl md:text-5xl text-5xl">
-          Discover a new musical gem every day.
+          Discover a new musical gem every day. 
         </span>
         </div>
         <div className={`${isMobile ? "text-center" : "text-left"}`}>
