@@ -26,7 +26,7 @@ export default function Home() {
       const today6AM = new Date(today);
       today6AM.setHours(6, 0, 0, 0);
 
-      if (today.getDay() > lastGenerated.getDay()) {
+      if (today.getDate() > lastGenerated.getDate()) {
         if (today.getHours() >= 6) {
           localStorage.removeItem("lastGenerated");
           localStorage.removeItem("cachedAlbum");
