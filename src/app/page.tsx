@@ -27,7 +27,7 @@ export default function Home() {
       today6AM.setHours(6, 0, 0, 0);
 
       if (today.getDay() > lastGenerated.getDay()) {
-        if (today.getHours() >= 6) {
+        if (today.getUTCHours() >= 6) {
           localStorage.removeItem("lastGenerated");
           localStorage.removeItem("cachedAlbum");
         }
