@@ -16,6 +16,25 @@ export default function Home() {
     undefined
   );
 
+  
+  // function clearLocalStorageAt6AM() {
+  //   const lastGeneratedString = localStorage.getItem("lastGenerated");
+
+  //   if (lastGeneratedString) {
+  //     const lastGenerated = new Date(lastGeneratedString);
+  //     const today = new Date();
+  //     const today6AM = new Date(today);
+  //     today6AM.setHours(6, 0, 0, 0);
+
+  //     if (today.getDay() > lastGenerated.getDay()) {
+  //       if (today.getHours() >= 6) {
+  //         localStorage.removeItem("lastGenerated");
+  //         localStorage.removeItem("cachedAlbum");
+  //       }
+  //     }
+  //   }
+  // }
+  
   //to clear localstorage at 6am
   function clearLocalStorageAt6AM() {
     const lastGeneratedString = localStorage.getItem("lastGenerated");
@@ -23,14 +42,9 @@ export default function Home() {
     if (lastGeneratedString) {
       const lastGenerated = new Date(lastGeneratedString);
       const today = new Date();
-      const today6AM = new Date(today);
-      today6AM.setHours(6, 0, 0, 0);
-
-      if (today.getDay() > lastGenerated.getDay()) {
-        if (today.getHours() >= 6) {
+      if (today.getDate() > lastGenerated.getDate()) {
           localStorage.removeItem("lastGenerated");
           localStorage.removeItem("cachedAlbum");
-        }
       }
     }
   }
