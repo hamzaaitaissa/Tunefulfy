@@ -30,13 +30,13 @@ cd tunefulfy
 2️⃣ Install dependencies
 
 yarn install
-# or
+or
 npm install
 
 3️⃣ Run the development server
 
 yarn dev
-# or
+or
 npm run dev
 
 Then open http://localhost:3000 to see the app in action.
@@ -46,13 +46,13 @@ Then open http://localhost:3000 to see the app in action.
 To create an optimized production build:
 
 yarn build
-# or
+or
 npm run build
 
 To start the production server:
 
 yarn start
-# or
+or
 npm run start
 
 🤝 Contributing
