@@ -24,20 +24,20 @@ To run this project locally, follow these steps:
 
 1️⃣ Clone the repository
 
-git clone https://github.com/your-username/tunefulfy.git
-cd tunefulfy
+`git clone https://github.com/your-username/tunefulfy.git`
+`cd tunefulfy`
 
 2️⃣ Install dependencies
 
-yarn install
+`yarn install`
 or
-npm install
+`npm install`
 
 3️⃣ Run the development server
 
-yarn dev
+`yarn dev`
 or
-npm run dev
+`npm run dev`
 
 Then open http://localhost:3000 to see the app in action.
 
@@ -45,15 +45,15 @@ Then open http://localhost:3000 to see the app in action.
 
 To create an optimized production build:
 
-yarn build
+`yarn build`
 or
-npm run build
+`npm run build`
 
 To start the production server:
 
-yarn start
+`yarn start`
 or
-npm run start
+`npm run start`
 
 🤝 Contributing
 
